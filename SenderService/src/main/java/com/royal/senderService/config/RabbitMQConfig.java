@@ -36,7 +36,15 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(queue);
+        return QueueBuilder.durable(queue)
+                .withArgument("x-dead-letter-exchange", dlxExchange)
+                .withArgument("x-dead-letter-routing-key", dlxRoutingKey)
+                .build();
+    }
+
+    @Bean
+    public Queue dlxQueue() {
+        return QueueBuilder.durable(dlxQueue).build();
     }
 
 
@@ -46,20 +54,15 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public DirectExchange dlxExchange() {
+        return new DirectExchange(dlxExchange);
+    }
+
+    @Bean
     public Binding binding() {
         return BindingBuilder.bind(queue())
                 .to(exchange())
                 .with(routingKey);
-    }
-
-    @Bean
-    public DirectExchange dlxExchange() {
-        return new DirectExchange(dlxQueue);
-    }
-
-    @Bean
-    public Queue dlxQueue() {
-        return new Queue(dlxExchange);
     }
 
     @Bean
@@ -75,7 +78,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter());
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {

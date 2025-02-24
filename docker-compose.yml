@@ -14,6 +14,7 @@ services:
       test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 10s
       retries: 5
+      timeout: 10s
 
   postgres:
     image: postgres:17
@@ -41,6 +42,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
 
   receiver-service:
     build:

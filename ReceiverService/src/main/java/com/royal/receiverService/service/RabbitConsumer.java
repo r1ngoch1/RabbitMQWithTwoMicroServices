@@ -29,7 +29,7 @@ public class RabbitConsumer {
             LOGGER.info("Получено сообщение: {}", message.toString());
             LOGGER.info("Delivery tag: {}", deliveryTag);
 
-            messageService.save(message);
+            messageService.saveMessage(message);
 
             channel.basicAck(deliveryTag, false);
             LOGGER.info("Сообщение подтверждено: delivery tag {}", deliveryTag);

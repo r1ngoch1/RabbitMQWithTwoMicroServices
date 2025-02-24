@@ -1,6 +1,7 @@
 package com.royal.receiverService.config;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,17 +16,36 @@ public class RabbitMQConfig {
 
     @Value("${rabbitmq.queue.name}")
     private String queue;
-
-    @Value("${rabbitmq.routing.key.name}")
-    private String routingKey;
+    @Value("${rabbitmq.dlx.queue.name}")
+    private String dlxQueue;
 
     @Value("${rabbitmq.exchange.name}")
     private String exchange;
+    @Value("${rabbitmq.dlx.exchange.name}")
+    private String dlxExchange;
+
+    @Value("${rabbitmq.routing.key.name}")
+    private String routingKey;
+    @Value("${rabbitmq.dlx.routing.key.name}")
+    private String dlxRoutingKey;
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQConfig.class);
+
 
     @Bean
     public Queue queue() {
-        return new Queue(queue);
+        return QueueBuilder.durable(queue)
+                .withArgument("x-dead-letter-exchange", dlxExchange)
+                .withArgument("x-dead-letter-routing-key", dlxRoutingKey)
+                .build();
     }
+
+    @Bean
+    public Queue dlxQueue() {
+        return QueueBuilder.durable(dlxQueue).build();
+    }
+
 
     @Bean
     public DirectExchange exchange() {
@@ -33,11 +53,22 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding jsonBinding() {
+    public DirectExchange dlxExchange() {
+        return new DirectExchange(dlxExchange);
+    }
+
+    @Bean
+    public Binding binding() {
         return BindingBuilder.bind(queue())
                 .to(exchange())
                 .with(routingKey);
+    }
 
+    @Bean
+    public Binding dlxBinding() {
+        return BindingBuilder.bind(dlxQueue())
+                .to(dlxExchange())
+                .with(dlxRoutingKey);
     }
 
     @Bean
@@ -46,10 +77,9 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }
-
 }

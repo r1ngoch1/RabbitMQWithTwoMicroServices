@@ -21,7 +21,7 @@ public class MessageService {
         this.messageRepository = messageRepository;
     }
 
-    public void save(Message message) {
+    public void saveMessage(Message message) {
         try {
             LOGGER.info("Попытка сохранить сообщение с id: {}", message.getId());
             messageRepository.save(message);
