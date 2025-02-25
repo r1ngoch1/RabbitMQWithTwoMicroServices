@@ -21,7 +21,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: RabbitMQTest
     ports:
       - "5432:5432"
     healthcheck:
@@ -51,7 +51,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      DB_URL: ${DB_URL}
+      DB_URL: jdbc:postgresql://postgres:5432/RabbitMQTest
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       RABBIT_USERNAME: ${RABBIT_USERNAME}
