@@ -10,6 +10,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+/**
+ * Репозиторий для работы с таблицей сообщений в базе данных.
+ * Позволяет проверять существование сообщений, сохранять их и получать список всех сообщений.
+ */
 @Repository
 public class MessageRepository {
 
@@ -17,11 +23,22 @@ public class MessageRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageRepository.class);
 
+    /**
+     * Конструктор с внедрением зависимости JdbcTemplate.
+     *
+     * @param jdbcTemplate объект для взаимодействия с базой данных
+     */
     @Autowired
     public MessageRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Проверяет, существует ли сообщение в базе данных по его идентификатору.
+     *
+     * @param id идентификатор сообщения
+     * @return true, если сообщение существует, иначе false
+     */
     public boolean existsById(Long id) {
         try {
             String sql = "SELECT COUNT(*) FROM messages WHERE id = ?";
@@ -33,6 +50,11 @@ public class MessageRepository {
         }
     }
 
+    /**
+     * Сохраняет сообщение в базе данных. Если сообщение с таким ID уже существует, выбрасывается исключение.
+     *
+     * @param message объект сообщения для сохранения
+     */
     public void save(Message message) {
         try {
             if (existsById(message.getId())) {
@@ -48,5 +70,28 @@ public class MessageRepository {
         }
     }
 
-
+    /**
+     * Получает список всех сообщений из базы данных.
+     *
+     * @return список сообщений
+     */
+    public List<Message> findAll() {
+        try {
+            LOGGER.info("Попытка получения всех сообщений из базы данных");
+            String sql = "SELECT * FROM messages";
+            List<Message> messages = jdbcTemplate.query(sql, (rs, rowNum) -> {
+                Message message = new Message();
+                message.setId(rs.getLong("id"));
+                message.setName(rs.getString("name"));
+                message.setPrice(rs.getDouble("price"));
+                message.setTimestamp(rs.getTimestamp("timestamp"));
+                return message;
+            });
+            LOGGER.info("Успешно получено {} сообщений", messages.size());
+            return messages;
+        } catch (DataAccessException e) {
+            LOGGER.error("Ошибка при получении всех сообщений из базы данных", e);
+            throw new MessagePersistenceException("Ошибка при получении всех сообщений из базы данных", e);
+        }
+    }
 }

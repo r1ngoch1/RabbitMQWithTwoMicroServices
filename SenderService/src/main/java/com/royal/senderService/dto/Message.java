@@ -6,6 +6,12 @@ import jakarta.validation.constraints.Positive;
 
 import java.sql.Timestamp;
 
+/**
+ * DTO-класс, представляющий сообщение с его основными аттрибутами.
+ * Этот класс используется для передачи данных сообщения в различных слоях приложения. Он включает в себя поля:
+ * идентификатор, имя, цену и временную метку.
+ */
+
 public class Message {
     @NotBlank(message = "ID не может быть пустым")
     private Long id;

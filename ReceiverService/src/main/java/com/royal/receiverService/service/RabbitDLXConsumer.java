@@ -13,16 +13,32 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Компонент для обработки сообщений из очереди мертвых писем (DLX) в RabbitMQ.
+ */
 @Component
 public class RabbitDLXConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitDLXConsumer.class);
     private final DeadLetterService deadLetterService;
 
+    /**
+     * Конструктор для инициализации сервиса мертвых сообщений.
+     *
+     * @param deadLetterService Сервис для обработки мертвых писем.
+     */
     @Autowired
     public RabbitDLXConsumer(DeadLetterService deadLetterService) {
         this.deadLetterService = deadLetterService;
     }
 
+    /**
+     * Обработчик сообщений из очереди мертвых писем (DLX).
+     *
+     * @param message     Полученное сообщение.
+     * @param channel     Канал для подтверждения обработки сообщения.
+     * @param deliveryTag Уникальный идентификатор доставки сообщения.
+     * @throws IOException если происходит ошибка при подтверждении или отклонении сообщения.
+     */
     @RabbitListener(queues = "${rabbitmq.dlx.queue.name}", ackMode = "MANUAL")
     public void consumeDLX(Message message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) throws IOException {
         try {

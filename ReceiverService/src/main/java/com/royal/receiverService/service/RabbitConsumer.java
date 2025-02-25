@@ -12,17 +12,33 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Компонент для обработки сообщений из RabbitMQ.
+ */
 @Component
 public class RabbitConsumer {
     private final MessageService messageService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitConsumer.class);
 
+    /**
+     * Конструктор для инициализации сервиса сообщений.
+     *
+     * @param messageService Сервис для обработки сообщений.
+     */
     @Autowired
     public RabbitConsumer(MessageService messageService) {
         this.messageService = messageService;
     }
 
+    /**
+     * Обработчик сообщений из RabbitMQ.
+     *
+     * @param message     Полученное сообщение.
+     * @param channel     Канал для подтверждения обработки сообщения.
+     * @param deliveryTag Уникальный идентификатор доставки сообщения.
+     * @throws IOException если происходит ошибка при подтверждении или отклонении сообщения.
+     */
     @RabbitListener(queues = "${rabbitmq.queue.name}", ackMode = "MANUAL")
     public void consume(Message message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) throws IOException {
         try {
@@ -40,6 +56,4 @@ public class RabbitConsumer {
             LOGGER.info("Сообщение отправлено в очередь мертвых писем (DLX): delivery tag {}", deliveryTag);
         }
     }
-
-
 }

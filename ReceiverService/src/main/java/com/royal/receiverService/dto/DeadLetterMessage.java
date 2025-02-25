@@ -2,6 +2,12 @@ package com.royal.receiverService.dto;
 
 import java.sql.Timestamp;
 
+/**
+ * DTO-класс, представляющий сообщение, которое попало в мертвую очередь.
+ * Этот класс используется для хранения информации о сообщении, которое не удалось обработать,
+ * включая его содержимое, причину ошибки и временную метку.
+ */
+
 public class DeadLetterMessage {
     private Long id;
     private String messageContent;
