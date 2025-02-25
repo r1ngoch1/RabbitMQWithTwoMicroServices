@@ -1,7 +1,6 @@
 package com.royal.receiverService.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -38,6 +37,7 @@ public class RabbitMQConfig {
 
     /**
      * Создает основную очередь с привязкой к Dead Letter Exchange (DLX).
+     * Если сообщение не попало в основную очередь, то оно отправляется в очередь мертвых сообщений
      *
      * @return настроенная очередь
      */
