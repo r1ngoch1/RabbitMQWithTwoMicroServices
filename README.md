@@ -17,9 +17,11 @@
 
 4. Перейдите на каждый из сервисов по очереди и соберите их. Если вы находитесь в главной папке, пропишите следующие команды для сборки:
     ```bash
-    cd .\ReceiverService    mvn clean package -DskipTests
+    cd .\ReceiverService
+    mvn clean package -DskipTests
     cd ..
-    cd .\SenderService    mvn clean package -DskipTests
+    cd .\SenderService
+    mvn clean package -DskipTests
     cd ..
     ```
 
@@ -33,3 +35,21 @@
     docker compose down
     ```
 
+## Endpoints:
+
+- **http://localhost:8080/api/v1/publish**  
+  Отправляет json сообщение в другой сервис.  
+  Пример входных данных:
+  ```json
+  {
+      "id": 100,
+      "name": "tomato",
+      "price": 5
+  }
+  ```
+
+- **http://localhost:8081/api/v1/messages**  
+  Получает все json сообщения из базы данных.
+
+- **http://localhost:8081/api/v1/dead-letters**  
+  Получает все ошибочные запросы к эндпоинту `/publish` из базы данных.
